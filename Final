@@ -1,0 +1,94 @@
+import tkinter as tk
+
+points = {
+    "takedown": 2,
+    "escape": 1,
+    "reversal": 2,
+    "near_fall_2": 2,
+    "near_fall_3": 3,
+    "near_fall_4": 4,
+    "penalty": 1,
+    "stalling": 1,
+    "illegal_hold": 1,
+    "unsportsmanlike": 2
+}
+
+history = []
+actions_used = set()
+match_info = ("Wrestling Match", "Track your score")
+match_over = False
+
+class Wrestler:
+    def __init__(self, name):
+        self.name = name
+        self.score = 0
+
+class Player(Wrestler):
+    def add_points(self, action):
+        global match_over
+
+        if match_over:
+            status_label.config(text="Match is already over!")
+            return
+
+        try:
+            if action == "pin":
+                status_label.config(text="PIN! You win! Match Over!")
+                match_over = True
+            else:
+                self.score += points[action]
+                history.append(action)
+                actions_used.add(action)
+                update_display()
+        except KeyError:
+            status_label.config(text="Invalid action!")
+
+def do_action(action):
+    player.add_points(action)
+
+def update_display():
+    score_label.config(text=f"Score: {player.score}")
+    history_label.config(text=f"History: {history}")
+    actions_label.config(text=f"Unique Actions: {list(actions_used)}")
+
+def reset():
+    global match_over
+    player.score = 0
+    match_over = False
+    history.clear()
+    actions_used.clear()
+    update_display()
+    status_label.config(text="New Match Started")
+
+player = Player("Arsham")
+
+root = tk.Tk()
+root.title(match_info[0])
+
+score_label = tk.Label(root, text="Score: 0", font=("Arial", 16))
+score_label.pack()
+
+status_label = tk.Label(root, text="Match Ready")
+status_label.pack()
+
+history_label = tk.Label(root, text="History: []")
+history_label.pack()
+
+actions_label = tk.Label(root, text="Unique Actions: []")
+actions_label.pack()
+
+tk.Button(root, text="Takedown", command=lambda: do_action("takedown")).pack()
+tk.Button(root, text="Escape", command=lambda: do_action("escape")).pack()
+tk.Button(root, text="Reversal", command=lambda: do_action("reversal")).pack()
+tk.Button(root, text="Near Fall (2)", command=lambda: do_action("near_fall_2")).pack()
+tk.Button(root, text="Near Fall (3)", command=lambda: do_action("near_fall_3")).pack()
+tk.Button(root, text="Near Fall (4)", command=lambda: do_action("near_fall_4")).pack()
+tk.Button(root, text="Penalty", command=lambda: do_action("penalty")).pack()
+tk.Button(root, text="Stalling", command=lambda: do_action("stalling")).pack()
+tk.Button(root, text="Illegal Hold", command=lambda: do_action("illegal_hold")).pack()
+tk.Button(root, text="Unsportsmanlike", command=lambda: do_action("unsportsmanlike")).pack()
+tk.Button(root, text="Pin", command=lambda: do_action("pin")).pack()
+
+tk.Button(root, text="Reset", command=reset).pack()
+
+root.mainloop()
